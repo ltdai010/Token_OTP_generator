@@ -3,14 +3,13 @@ package main
 import (
 	"crypto"
 	"fmt"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sec51/twofactor"
 )
 
 func main() {
 	CreateTokenEndpoint()
-	otp, err := CreateOtp("luongdai246@gmail.com", "secret")
+	otp, err := CreateOtp("luongdai246@gmail.com", "myapp")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -18,12 +17,15 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println("\n" + s)
-	if err := ValidateOtp(s, otp); err != nil {
-		fmt.Println(err.Error())
-		return
+	fmt.Println(otp.Secret())
+	fmt.Println(s)
+	for {
+		var key string
+		fmt.Scan(&key)
+		if err := ValidateOtp(key, otp); err != nil {
+			fmt.Println(err.Error())
+		}
 	}
-	fmt.Println("match")
 }
 
 //create token
@@ -40,8 +42,8 @@ func CreateTokenEndpoint() {
 }
 
 //create otp
-func CreateOtp(name string, secret string) (*twofactor.Totp, error) {
-	otp, err := twofactor.NewTOTP(name, secret, crypto.SHA1, 6)
+func CreateOtp(name string, issuer string) (*twofactor.Totp, error) {
+	otp, err := twofactor.NewTOTP(name, issuer, crypto.SHA1, 6)
 	if err != nil {
 		return nil, err
 	}
